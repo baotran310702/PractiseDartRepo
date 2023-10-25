@@ -1,36 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:newsproject/home/news/news.dart';
+import 'package:newsproject/bloc/news_bloc.dart';
+import 'dart:developer' as developer;
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    print("Start Home Page");
+    developer.log('log me', name: 'my.app.category');
     return Container(
       alignment: Alignment.topCenter,
       width: MediaQuery.of(context).size.width,
       padding: const EdgeInsets.only(left: 8, right: 8),
-      child: const SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+      child: SingleChildScrollView(
+        child: Stack(
           children: [
-            TextNews(),
-            NewsFeed(),
-            NewsFeed(),
-            NewsFeed(),
-            NewsFeed(),
-            NewsFeed(),
-            NewsFeed(),
-            NewsFeed(),
-            NewsFeed(),
-            NewsFeed(),
-            NewsFeed(),
-            NewsFeed(),
-            NewsFeed(),
-            NewsFeed(),
-            NewsFeed()
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                BlocBuilder<NewsBloc, NewsState>(
+                  builder: (context, state) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  },
+                )
+              ],
+            ),
           ],
         ),
       ),
@@ -50,7 +50,7 @@ class TextNews extends StatelessWidget {
           style: GoogleFonts.openSans(
             fontWeight: FontWeight.w600,
             fontSize: 14,
-            color: Color(0xff1D1A61),
+            color: const Color(0xff1D1A61),
           )),
     );
   }

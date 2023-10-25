@@ -4,7 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 class NewsFeed extends StatelessWidget {
-  const NewsFeed({super.key});
+  final String? title;
+  final String? summary;
+  final String? modifiedAt;
+  final String? image;
+
+  const NewsFeed(
+      {super.key, this.title, this.summary, this.modifiedAt, this.image});
 
   @override
   Widget build(BuildContext context) {
@@ -19,17 +25,16 @@ class NewsFeed extends StatelessWidget {
 }
 
 class NewsContent extends StatelessWidget {
-  const NewsContent({super.key});
+  final String? title;
+  final String? content;
+  final String? modified;
+
+  const NewsContent({super.key, this.title, this.content, this.modified});
 
   @override
   Widget build(BuildContext context) {
-    final String title =
-        "Dhaka Division make it two in two; Khulna beat Chattogram by one wicket";
-    final String content =
-        "Rangpur open their account but Barisal remain winless after their nine-run loss to Rajshahi";
-    final String modified = "023-10-23T02:17:20.000Z";
     final String formattedDate = DateFormat('MMM d, yyyy', 'en_US').format(
-        DateTime.parse("20" + modified.substring(1, modified.length - 1)));
+        DateTime.parse("20" + modified!.substring(1, modified!.length - 1)));
 
     return Column(
       children: [
@@ -38,7 +43,7 @@ class NewsContent extends StatelessWidget {
             SizedBox(
               width: MediaQuery.of(context).size.width - 185,
               child: Text(
-                title,
+                title!,
                 style: GoogleFonts.openSans(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -55,7 +60,7 @@ class NewsContent extends StatelessWidget {
             SizedBox(
               width: MediaQuery.of(context).size.width - 185,
               child: Text(
-                title,
+                title!,
                 style: GoogleFonts.openSans(
                     fontSize: 10,
                     fontWeight: FontWeight.w400,
@@ -91,14 +96,13 @@ class NewsContent extends StatelessWidget {
 }
 
 class ImageBox extends StatelessWidget {
-  const ImageBox({super.key});
+  final String? img;
+  const ImageBox({super.key, this.img});
 
   @override
   Widget build(BuildContext context) {
     const String assetPath = "assets/news.svg";
     final Widget newsSvg = SvgPicture.asset(assetPath, semanticsLabel: 'bars');
-    const networkURL =
-        "https://img1.hscicdn.com/image/upload/f_auto,t_ds_wide_w_640,q_50/lsci/db/PICTURES/CMS/348400/348486.5.png";
 
     return Padding(
       padding: const EdgeInsets.only(right: 8),
@@ -109,8 +113,8 @@ class ImageBox extends StatelessWidget {
             height: 101.54,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10.0),
-              image: const DecorationImage(
-                  image: NetworkImage(networkURL), fit: BoxFit.cover),
+              image:
+                  DecorationImage(image: NetworkImage(img!), fit: BoxFit.cover),
             ),
             child: null,
           ),
