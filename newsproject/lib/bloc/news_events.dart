@@ -4,8 +4,8 @@ abstract class NewsEvent {}
 
 class LoadPages extends NewsEvent {
   final int currentPage;
-  final bool isLoading = false;
-  final List<dynamic> listNews;
+  final bool isLoading = true;
+  final List<News> listNews;
 
   LoadPages({
     required this.listNews,
@@ -13,13 +13,18 @@ class LoadPages extends NewsEvent {
   });
 }
 
-class LoadPageSuccess extends NewsEvent {
+class LoadMorePages extends NewsEvent {
   final int currentPage;
-  final bool isLoading = true;
-  final List<dynamic> listNews;
+  final List<News> listNews;
+  final bool isLoading = false;
 
-  LoadPageSuccess({
+  LoadMorePages({
     required this.listNews,
     required this.currentPage,
   });
+}
+
+class LoadingProgress extends NewsEvent {
+  final isLoading = true;
+  LoadingProgress();
 }

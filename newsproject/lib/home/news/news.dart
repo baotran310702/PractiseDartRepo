@@ -17,8 +17,17 @@ class NewsFeed extends StatelessWidget {
     return Container(
       width: MediaQuery.of(context).size.width,
       padding: const EdgeInsets.only(bottom: 16),
-      child: const Row(
-        children: [ImageBox(), NewsContent()],
+      child: Row(
+        children: [
+          ImageBox(
+            img: image,
+          ),
+          NewsContent(
+            title: title,
+            content: summary,
+            modified: modifiedAt,
+          )
+        ],
       ),
     );
   }
@@ -37,6 +46,8 @@ class NewsContent extends StatelessWidget {
         DateTime.parse("20" + modified!.substring(1, modified!.length - 1)));
 
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Row(
           children: [

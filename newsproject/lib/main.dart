@@ -26,10 +26,12 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           home: Scaffold(
             appBar: AppBarCustom(),
-            body: Stack(children: [
-              HomePage(),
-              Positioned(bottom: 20, right: 20, child: ScrollUpBtn())
-            ]),
+            body: Stack(
+              children: [
+                HomePage(),
+                Positioned(bottom: 20, right: 20, child: ScrollUpBtn())
+              ],
+            ),
           ),
         ),
       ),
