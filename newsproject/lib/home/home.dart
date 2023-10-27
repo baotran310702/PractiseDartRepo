@@ -4,8 +4,27 @@ import 'package:newsproject/bloc/news_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:newsproject/home/news/news.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final ScrollController _controller = ScrollController();
+
+  void _scrollListener() {
+    if (_controller.position.pixels == _controller.position.maxScrollExtent) {
+      context.read<NewsBloc>().add(LoadMorePages());
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_scrollListener);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +43,20 @@ class HomePage extends StatelessWidget {
             child: BlocBuilder<NewsBloc, NewsState>(
               builder: (context, state) {
                 if (state is NewsInitial) {
-                  return const CircularProgressIndicator();
+                  print("Init State");
+                  if (state.isLoading == true) {
+                    return const CircularProgressIndicator();
+                  }
                 }
                 if (state is NewsLoadPage) {
+                  print("Load Pages");
+                  if (state.isLoading == true) {
+                    return const CircularProgressIndicator();
+                  }
                   if (state.listNews.isNotEmpty) {
+                    print("Loading list...");
                     return ListView.builder(
+                      controller: _controller,
                       itemCount: state.listNews.length + 1,
                       itemBuilder: (context, index) {
                         if (index < state.listNews.length) {
@@ -40,21 +68,20 @@ class HomePage extends StatelessWidget {
                             image: state.listNews[index].image.toString(),
                           );
                         } else {
-                          return const Column(
-                            children: [
-                              CircularProgressIndicator(),
-                              SizedBox(
-                                  height:
-                                      16), // Add some spacing between the list and the indicator
-                            ],
-                          );
+                          if (state.isLoading == true) {
+                            return const Column(
+                              children: [
+                                CircularProgressIndicator(),
+                                SizedBox(
+                                    height:
+                                        16), // Add some spacing between the list and the indicator
+                              ],
+                            );
+                          }
                         }
                       },
                     );
                   }
-                }
-                if (state is NewsLoading) {
-                  return const Text("Loading more pages");
                 }
                 return const CircularProgressIndicator();
               },

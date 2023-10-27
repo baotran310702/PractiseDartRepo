@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       child: BlocProvider(
         create: (context) => NewsBloc(
           dataNews: RepositoryProvider.of<NewsRepository>(context),
-        )..add(LoadPages(listNews: [], currentPage: 1)),
+        )..add(LoadPages()),
         child: const MaterialApp(
           title: "News App",
           debugShowCheckedModeBanner: false,
