@@ -1,4 +1,4 @@
-import 'news.dart';
+import 'news.model.dart';
 
 class NewsAPI {
   int? currentPage;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:newsproject/bloc/news_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:newsproject/home/news/news.dart';
+import 'package:newsproject/views/home/news/news.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -28,7 +28,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print("Start Home Page");
     return Column(
       children: [
         const Padding(
@@ -43,18 +42,15 @@ class _HomePageState extends State<HomePage> {
             child: BlocBuilder<NewsBloc, NewsState>(
               builder: (context, state) {
                 if (state is NewsInitial) {
-                  print("Init State");
                   if (state.isLoading == true) {
                     return const CircularProgressIndicator();
                   }
                 }
                 if (state is NewsLoadPage) {
-                  print("Load Pages");
                   if (state.isLoading == true) {
                     return const CircularProgressIndicator();
                   }
                   if (state.listNews.isNotEmpty) {
-                    print("Loading list...");
                     return ListView.builder(
                       controller: _controller,
                       itemCount: state.listNews.length + 1,
@@ -78,10 +74,11 @@ class _HomePageState extends State<HomePage> {
                               ],
                             );
                           }
+                          return null;
                         }
                       },
                     );
-                  }
+                  } else {}
                 }
                 return const CircularProgressIndicator();
               },

@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:newsproject/bloc/news_bloc.dart';
-import 'package:newsproject/home/home.dart';
+import 'package:newsproject/data/news_hive_store.dart';
+import 'package:newsproject/models/news.model.dart';
+import 'package:newsproject/views/home/home.dart';
 import 'package:newsproject/services/news_repository.dart';
-import 'home/appBar/app_bar.dart';
+import 'views/home/appBar/app_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-void main() {
+Future<void> main() async {
+  //Initial Hive Storage
+  await Hive.initFlutter();
+  //Register Hive Adapter
+  Hive.registerAdapter<News>(NewsAdapter());
+  //Open box
+  var box = await Hive.openBox<News>(NewsLocalStorage.boxName);
   runApp(const MyApp());
 }
 
@@ -14,7 +24,6 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    print("Start component");
     return RepositoryProvider(
       create: (context) => NewsRepository(),
       child: BlocProvider(
