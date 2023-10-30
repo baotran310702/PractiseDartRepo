@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:newsproject/models/news.model.dart';
+import 'dart:math';
 
 class NewsLocalStorage {
   static const boxName = 'NewsBox';
@@ -10,8 +11,9 @@ class NewsLocalStorage {
   //Add new story
   Future<void> addTask({required List<News> listNews}) async {
     int lenList = listNews.length;
+    Random random = Random();
     for (int i = 0; i < lenList; i++) {
-      await boxNews.put(listNews[i].storyId, listNews[i]);
+      await boxNews.put(random.nextInt(100001), listNews[i]);
     }
   }
 

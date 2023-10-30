@@ -9,3 +9,7 @@ class LoadPages extends NewsEvent {
 class LoadMorePages extends NewsEvent {
   LoadMorePages();
 }
+
+class ReloadPages extends NewsEvent {
+  ReloadPages();
+}

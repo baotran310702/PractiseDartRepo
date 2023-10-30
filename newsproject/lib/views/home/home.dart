@@ -15,6 +15,10 @@ class _HomePageState extends State<HomePage> {
   final ScrollController _controller = ScrollController();
 
   void _scrollListener() {
+    if (_controller.position.pixels == 0.0) {
+      context.read<NewsBloc>().add(ReloadPages());
+    }
+
     if (_controller.position.pixels == _controller.position.maxScrollExtent) {
       context.read<NewsBloc>().add(LoadMorePages());
     }
@@ -28,64 +32,74 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 8),
-          child: TextNews(),
-        ),
-        Expanded(
-          child: Container(
-            alignment: Alignment.topCenter,
-            width: MediaQuery.of(context).size.width,
-            padding: const EdgeInsets.only(left: 8, right: 8),
-            child: BlocBuilder<NewsBloc, NewsState>(
-              builder: (context, state) {
-                if (state is NewsInitial) {
-                  if (state.isLoading == true) {
-                    return const CircularProgressIndicator();
+    return SafeArea(
+      child: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 8),
+            child: TextNews(),
+          ),
+          Expanded(
+            child: Container(
+              alignment: Alignment.topCenter,
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: BlocBuilder<NewsBloc, NewsState>(
+                buildWhen: (previous, current) {
+                  if (current.listNews.isNotEmpty) {
+                    print("state checking...");
+                    if (current is NewsInitial) {
+                      print("state check fail");
+                      return false;
+                    }
+                    print("state check success");
+                    return true;
+                  } else {
+                    return true;
                   }
-                }
-                if (state is NewsLoadPage) {
-                  if (state.isLoading == true) {
-                    return const CircularProgressIndicator();
-                  }
-                  if (state.listNews.isNotEmpty) {
-                    return ListView.builder(
-                      controller: _controller,
-                      itemCount: state.listNews.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index < state.listNews.length) {
-                          return NewsFeed(
-                            title: state.listNews[index].title.toString(),
-                            summary: state.listNews[index].summary.toString(),
-                            modifiedAt:
-                                state.listNews[index].modifiedAt.toString(),
-                            image: state.listNews[index].image.toString(),
-                          );
-                        } else {
-                          if (state.isLoading == true) {
-                            return const Column(
-                              children: [
-                                CircularProgressIndicator(),
-                                SizedBox(
-                                    height:
-                                        16), // Add some spacing between the list and the indicator
-                              ],
+                },
+                builder: (context, state) {
+                  if (state is NewsLoadPage) {
+                    if (state.isLoading == true) {
+                      return const CircularProgressIndicator();
+                    }
+                    if (state.listNews.isNotEmpty) {
+                      return ListView.builder(
+                        controller: _controller,
+                        itemCount: state.listNews.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index < state.listNews.length) {
+                            return NewsFeed(
+                              title: state.listNews[index].title.toString(),
+                              summary: state.listNews[index].summary.toString(),
+                              modifiedAt:
+                                  state.listNews[index].modifiedAt.toString(),
+                              image: state.listNews[index].image.toString(),
                             );
+                          } else {
+                            if (state.isLoading == true) {
+                              return const Column(
+                                children: [
+                                  CircularProgressIndicator(),
+                                  SizedBox(
+                                      height:
+                                          16), // Add some spacing between the list and the indicator
+                                ],
+                              );
+                            }
+                            return null;
                           }
-                          return null;
-                        }
-                      },
-                    );
-                  } else {}
-                }
-                return const CircularProgressIndicator();
-              },
+                        },
+                      );
+                    } else {}
+                  }
+                  return const CircularProgressIndicator();
+                },
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
