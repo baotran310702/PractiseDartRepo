@@ -13,64 +13,55 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
 
   NewsBloc({required this.dataNews})
       : super(
-            (NewsState(currentPage: 0, isLoading: false, listNews: <News>[]))) {
-    on<LoadPages>(_loadPage, transformer: droppable());
-    on<ReloadPages>(_reloadPages, transformer: restartable());
-  }
-  //Reload Pages when pull down the top
-
-  Future<void> _reloadPages(ReloadPages event, Emitter<NewsState> emit) async {
-    state.currentPage = 0;
-
-    emit(NewsState(
-        currentPage: state.currentPage,
-        isLoading: true,
-        listNews: state.listNews));
-
-    List<News> listNews = await dataNews.getNews(state.currentPage! + 1);
-
-    try {
-      if (listNews.isEmpty) {
-      } else {
-        await _clearStorage();
-        state.listNews!.clear();
-        state.listNews!.addAll(listNews);
-        await _addStorage(listNews);
-      }
-    } catch (e) {
-      print(e.toString());
-    }
-    emit(NewsState(
-        currentPage: state.currentPage! + 1,
-        isLoading: false,
-        listNews: state.listNews));
+            (NewsState(currentPage: 1, isLoading: false, listNews: <News>[]))) {
+    on<NewsEvent>(_loadPage, transformer: restartable());
   }
 
-  //Load first page is different load more pages because of first clear the Storage in Hive
-  Future<void> _loadPage(LoadPages event, Emitter<NewsState> emit) async {
-    print("Load page");
-    print("current page ${state.currentPage}");
-    emit(NewsState(
-        currentPage: state.currentPage,
-        isLoading: true,
-        listNews: state.listNews));
-
-    List<News> listNews = await dataNews.getNews(state.currentPage! + 1);
+  //Handle event here
+  Future<void> _loadPage(NewsEvent event, Emitter<NewsState> emit) async {
+    //Create local first
     List<News> storageData = await _getDataLocal();
 
-    if (listNews.isEmpty) {
-    } else {
-      await _clearStorage();
-      state.listNews!.addAll(listNews);
-      state.currentPage = state.currentPage! + 1;
-      await _addStorage(listNews);
+    if (state.isLoading == false) {
+      List<News> listNews = await dataNews.getNews(state.currentPage!);
+      if (event is LoadPages) {
+        emit(
+          NewsState(
+              currentPage: state.currentPage,
+              isLoading: true,
+              listNews: state.listNews),
+        );
+      }
+      if (event is ReloadPages) {
+        emit(
+          NewsState(
+              currentPage: 1,
+              isLoading: true,
+              listNews: listNews.isNotEmpty ? listNews : storageData),
+        );
+      }
+      print(state.currentPage);
+
+      //Check if API is call successfully
+      if (listNews.isEmpty) {
+      } else {
+        //Then clear the localStorage
+        await _clearStorage();
+        state.listNews!.addAll(listNews);
+        await _addStorage(
+            state.listNews!.length < 40 ? state.listNews! : <News>[]);
+        state.currentPage = state.currentPage! + 1;
+      }
+
+      //Emit state listNews that if internet is call failed -> return the storage
+      emit(NewsState(
+          currentPage: state.currentPage,
+          isLoading: false,
+          listNews: listNews.isNotEmpty ? state.listNews : storageData));
     }
-    emit(NewsState(
-        currentPage: state.currentPage,
-        isLoading: false,
-        listNews: listNews.isNotEmpty ? state.listNews : storageData));
   }
 
+  /*Handle Local Storage */
   //get Data from Hive local
   Future<List<News>> _getDataLocal() async {
     NewsLocalStorage localStorage = NewsLocalStorage();
