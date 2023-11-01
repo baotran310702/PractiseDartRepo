@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "919536353657",
+    "project_id": "chatapp-bbfca",
+    "storage_bucket": "chatapp-bbfca.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:919536353657:android:ab807a21a1bf74498d2fa8",
+        "android_client_info": {
+          "package_name": "com.example.advancedlessons"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnWSsUarUvfa_Xve_mb2Wh9KH4dHSgke4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
