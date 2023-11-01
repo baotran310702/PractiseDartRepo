@@ -20,7 +20,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     if (_controller.position.pixels == _controller.position.maxScrollExtent) {
-      context.read<NewsBloc>().add(LoadMorePages());
+      context.read<NewsBloc>().add(LoadPages());
     }
   }
 
@@ -45,54 +45,39 @@ class _HomePageState extends State<HomePage> {
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.only(left: 8, right: 8),
               child: BlocBuilder<NewsBloc, NewsState>(
-                buildWhen: (previous, current) {
-                  if (current.listNews.isNotEmpty) {
-                    print("state checking...");
-                    if (current is NewsInitial) {
-                      print("state check fail");
-                      return false;
-                    }
-                    print("state check success");
-                    return true;
-                  } else {
-                    return true;
-                  }
-                },
                 builder: (context, state) {
-                  if (state is NewsLoadPage) {
-                    if (state.isLoading == true) {
-                      return const CircularProgressIndicator();
-                    }
-                    if (state.listNews.isNotEmpty) {
-                      return ListView.builder(
-                        controller: _controller,
-                        itemCount: state.listNews.length + 1,
-                        itemBuilder: (context, index) {
-                          if (index < state.listNews.length) {
-                            return NewsFeed(
-                              title: state.listNews[index].title.toString(),
-                              summary: state.listNews[index].summary.toString(),
-                              modifiedAt:
-                                  state.listNews[index].modifiedAt.toString(),
-                              image: state.listNews[index].image.toString(),
+                  //Check if list is empty or not
+                  if (state.listNews!.isNotEmpty) {
+                    return ListView.builder(
+                      controller: _controller,
+                      //Length + 1 to add a CircleProgress at the last of List
+                      itemCount: state.listNews!.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index < state.listNews!.length) {
+                          return NewsFeed(
+                            title: state.listNews![index].title.toString(),
+                            summary: state.listNews![index].summary.toString(),
+                            modifiedAt:
+                                state.listNews![index].modifiedAt.toString(),
+                            image: state.listNews![index].image.toString(),
+                          );
+                        } else {
+                          if (state.isLoading == true) {
+                            return const Column(
+                              children: [
+                                // Add some spacing between the list and the indicator
+                                SizedBox(height: 16),
+                                CircularProgressIndicator(),
+                                // Add some spacing between the list and the indicator
+                                SizedBox(height: 16),
+                              ],
                             );
-                          } else {
-                            if (state.isLoading == true) {
-                              return const Column(
-                                children: [
-                                  CircularProgressIndicator(),
-                                  SizedBox(
-                                      height:
-                                          16), // Add some spacing between the list and the indicator
-                                ],
-                              );
-                            }
-                            return null;
                           }
-                        },
-                      );
-                    } else {}
-                  }
+                          return null;
+                        }
+                      },
+                    );
+                  } else {}
                   return const CircularProgressIndicator();
                 },
               ),

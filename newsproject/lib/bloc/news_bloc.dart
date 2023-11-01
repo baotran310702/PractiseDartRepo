@@ -12,98 +12,79 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
   final NewsRepository dataNews;
 
   NewsBloc({required this.dataNews})
-      : super((NewsInitial(
-            currentPage: 0, isLoading: false, listNews: <News>[]))) {
-    on<LoadPages>(_loadFirstPages);
-    on<LoadMorePages>(_loadMorePages);
+      : super(
+            (NewsState(currentPage: 0, isLoading: false, listNews: <News>[]))) {
+    on<LoadPages>(_loadPage, transformer: droppable());
     on<ReloadPages>(_reloadPages, transformer: restartable());
   }
-
   //Reload Pages when pull down the top
 
   Future<void> _reloadPages(ReloadPages event, Emitter<NewsState> emit) async {
-    List<News> listNews = await dataNews.getNews(1);
+    state.currentPage = 0;
+
+    emit(NewsState(
+        currentPage: state.currentPage,
+        isLoading: true,
+        listNews: state.listNews));
+
+    List<News> listNews = await dataNews.getNews(state.currentPage! + 1);
 
     try {
       if (listNews.isEmpty) {
       } else {
         await _clearStorage();
-        state.listNews.clear();
-        state.listNews.addAll(listNews);
+        state.listNews!.clear();
+        state.listNews!.addAll(listNews);
         await _addStorage(listNews);
-        state.currentPage = 1;
-
-        print("Page loaded");
       }
     } catch (e) {
-      print("An exception occur");
+      print(e.toString());
     }
-    emit(NewsLoadPage(
-        currentPage: state.currentPage,
+    emit(NewsState(
+        currentPage: state.currentPage! + 1,
         isLoading: false,
         listNews: state.listNews));
   }
 
   //Load first page is different load more pages because of first clear the Storage in Hive
-  Future<void> _loadFirstPages(LoadPages event, Emitter<NewsState> emit) async {
-    print("First page is inited");
+  Future<void> _loadPage(LoadPages event, Emitter<NewsState> emit) async {
+    print("Load page");
+    print("current page ${state.currentPage}");
+    emit(NewsState(
+        currentPage: state.currentPage,
+        isLoading: true,
+        listNews: state.listNews));
 
-    List<News> listNews = await dataNews.getNews(state.currentPage + 1);
+    List<News> listNews = await dataNews.getNews(state.currentPage! + 1);
     List<News> storageData = await _getDataLocal();
 
     if (listNews.isEmpty) {
-      state.listNews.addAll(storageData);
-      print(state.currentPage);
-      print(storageData.length.toString());
     } else {
       await _clearStorage();
-      state.listNews.clear();
-      state.listNews.addAll(listNews);
+      state.listNews!.addAll(listNews);
+      state.currentPage = state.currentPage! + 1;
       await _addStorage(listNews);
-      state.currentPage = state.currentPage + 1;
-      print(state.currentPage);
     }
-
-    emit(NewsLoadPage(
+    emit(NewsState(
         currentPage: state.currentPage,
         isLoading: false,
-        listNews: state.listNews));
+        listNews: listNews.isNotEmpty ? state.listNews : storageData));
   }
 
-  Future<void> _loadMorePages(
-      LoadMorePages event, Emitter<NewsState> emit) async {
-    print("Load more pages is called");
-
-    List<News> listNewsMore = await dataNews.getNews(state.currentPage + 1);
-
-    if (listNewsMore.isEmpty) {
-      // state.currentPage = 1;
-      print(state.currentPage);
-    } else {
-      state.listNews.addAll(listNewsMore);
-      await _addStorage(listNewsMore);
-      state.currentPage = state.currentPage + 1;
-      print(state.currentPage);
-      List<News> storageData1 = await _getDataLocal();
-    }
-
-    emit(NewsLoadPage(
-        currentPage: state.currentPage,
-        isLoading: false,
-        listNews: state.listNews));
-  }
-
+  //get Data from Hive local
   Future<List<News>> _getDataLocal() async {
     NewsLocalStorage localStorage = NewsLocalStorage();
     List<News> listData = await localStorage.getNews();
     return listData;
   }
 
+  //clear Data from Hive local
   Future<void> _clearStorage() async {
     NewsLocalStorage localStorage = NewsLocalStorage();
     localStorage.clearNews();
   }
 
+  //add Data to Hive local
   Future<void> _addStorage(List<News> listNews) async {
     NewsLocalStorage localStorage = NewsLocalStorage();
     localStorage.addTask(listNews: listNews);

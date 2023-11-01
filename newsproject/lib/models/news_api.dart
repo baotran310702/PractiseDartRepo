@@ -1,6 +1,6 @@
 import 'news.model.dart';
 
-class NewsAPI {
+abstract class NewsAPI {
   int? currentPage;
   List<News>? allResult;
 
